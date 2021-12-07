@@ -6,8 +6,12 @@ from io import BytesIO as cStringIO
 from array import array
 import zlib
 
+gdict = {}
+blocksdump = []
 
 def globalorder(f,global_dict, valsdict, chunk, ordering):
+    global gdict
+    global blocks
     output = cStringIO()
     output.truncate(0)
     headindex = [0]*4
@@ -20,14 +24,15 @@ def globalorder(f,global_dict, valsdict, chunk, ordering):
     output.write(msgpack.dumps(minmax))
     l2 = output.tell()
     headindex[0] = l2-l1
-   
+    v = len(gdict)
+    for val in chunk:
+       if val not in gdict:
+          gdict[val] = v
+          v+=1
+     
     l3 = output.tell()
     if minmax[0] != minmax[1]:
-        if ordering : 
-            coldict = dict(((x, y) for y, x in enumerate(valsdict)))
-            offsets = [coldict[y] for y in chunk]
-        else:
-            offsets = [global_dict[y] for y in chunk]
+        offsets = [gdict[y] for y in chunk]
         ll = max(offsets)
         if ll<256:
             type1 = 'B'
@@ -48,10 +53,12 @@ def globalorder(f,global_dict, valsdict, chunk, ordering):
     headindex[3] = len(chunk)
     output.seek(0)
     output.write(struct.pack(type, *headindex))
-    f.write(output.getvalue())
+    blocksdump.append(output.getvalue())
 
 
 def write_global(data,filen, ordering, row_group_offsets):
+    global gdict
+    global blocksdump
     f = open(filen,"w+b")
     f.write(MARKER)
     headindex = [0]*4
@@ -70,31 +77,27 @@ def write_global(data,filen, ordering, row_group_offsets):
     valsdict = []
     global_dict = {}
     for col in data:
-        if ordering == 1:
-            valsdict = sorted(data[col].unique())
-            for i, val in enumerate(valsdict):
-                global_dict[val] = i
-        else:
-            valsdict = list(data[col].unique())
-            for i, val in enumerate(valsdict):
-                global_dict[val] = i
-        if valsdict == sorted(valsdict):
-            ordering = 1
-        l1 = f.tell()
-        f.write(msgpack.dumps(valsdict))
-        l2 = f.tell()
-        headindex[2] = l2-l1
-        f.seek(4)
-        f.write(struct.pack(type, *headindex))
-        f.seek(l2)
         i=0 
         j=1
         for part in range(nparts):
-            blocks[i] = f.tell()
             chunk = data[col][chunksize*i:chunksize*j]
             globalorder(f,global_dict, valsdict, chunk, ordering)
             i+=1
             j+=1
+            
+            
+    l1 = f.tell()
+    f.write(msgpack.dumps(sorted(gdict.keys(), key=gdict.get)))
+    l2 = f.tell()
+    headindex[2] = l2-l1
+    f.seek(4)
+    f.write(struct.pack(type, *headindex))
+    f.seek(l2)
+    i = 0
+    for bl in blocksdump:
+        blocks[i] = f.tell()
+        f.write(bl)
+        i+=1
     f.seek(blocksind)
     f.write(struct.pack('L'*len(blocks),*blocks))   
 
