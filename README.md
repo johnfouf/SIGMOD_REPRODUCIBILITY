@@ -16,20 +16,29 @@ Clone repository and run
 ```cd SIGMOD_REPRODUCABILITY```
 
 D1) Compilations:
-dependencies install:
+dependencies install for C:
 ```
 sudo apt-get install libboost-all-dev 
 sudo apt-get install libgtest-dev
 sudo apt-get install libsnappy-dev
 sudo apt-get install zlib1g-dev
 ```
+dependencies install for Python3:
+```
+pip install thrift
+pip install numba
+pip install msgpack
+pip install msgpack_numpy
+pip install python-snappy
+```
+
 - compile CPP reader: g++ -O3 -std=c++11 -o read read.cpp -lsnappy -lz -Iarcade -Iarcadecpp/msgpack-c-cpp_master/include/
 - compile CPP compression runner:
-```
+
 cd arcade
 make runner
 cd ../
-```
+
 D1) Scripts and how-tos to generate all necessary data or locate datasets
 
 get data from https://drive.google.com/file/d/1CO5gX5d6jmbiLgjpL7xRtwyzt7krxOIS/view?usp=sharing
