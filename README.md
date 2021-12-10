@@ -45,8 +45,10 @@ D2)
        
 	```
 	python3 experiment4.1_compression.py
-	./experiment4.1_read.sh   (ran as root as it drops frees pagecache, dentries and inodes per command)
-        ```
+	./experiment4.1_read.sh  
+	```
+	(ran as root as it drops frees pagecache, dentries and inodes per command)
+        
 	The first command compresses the files and using time command times each execution
 	The second command runs filtered scan, full scan, and random access queries and print their results,
 	the execution times is shown with  unix time command. 
@@ -63,7 +65,8 @@ D2)
 	```
 	python3 experiment4.3_compression.py
 	./experiment4.3_read.sh 
-	```  (run as root as it frees pagecache, dentries and inodes per command)
+	```  
+	(run as root as it frees pagecache, dentries and inodes per command)
         
 	The first command compresses the files, which are stored at the current directory
 	The second executable runs filtered scan with 2 values and prints # of blocks and offsets scan that are omit, total and I/O times using gettimeofday function 
