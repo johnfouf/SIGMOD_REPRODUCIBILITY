@@ -920,12 +920,12 @@ int ArcadeWriter::compress(char *infile, char *outfile, int startp, int numofval
             start = std::clock();
             extractColumn(dataset, mcolumns[j], column);
             duration += (std::clock() - start) / (double) CLOCKS_PER_SEC;
-            //compress_batch(column,  f1, &filter, isdictionary, blocksize[j], sizediff[j],
-              //             lookup[j], diffvals[j], blocknum, BLOCKSIZE, SNAPPY, global_dict_memory[j], globaldictlen[j],
-                //           permanent_decision[j], duration5, costf, dthreshold);
-             compress_batch2(column,globaldict[j], glob[j],  f1, &filter, isdictionary, blocksize[j], sizediff[j],
+            compress_batch(column,  f1, &filter, isdictionary, blocksize[j], sizediff[j],
                            lookup[j], diffvals[j], blocknum, BLOCKSIZE, SNAPPY, global_dict_memory[j], globaldictlen[j],
                            permanent_decision[j], duration5, costf, dthreshold);
+            // compress_batch2(column,globaldict[j], glob[j],  f1, &filter, isdictionary, blocksize[j], sizediff[j],
+            //               lookup[j], diffvals[j], blocknum, BLOCKSIZE, SNAPPY, global_dict_memory[j], globaldictlen[j],
+            //               permanent_decision[j], duration5, costf, dthreshold);
             //compress(slice(dataset,0,dataset.size()-1),f1);
             columnindexes[j] = tell1 - tell;
         }
