@@ -10,7 +10,6 @@ from . import encoding
 from .compression import decompress_data
 from .converted_types import convert, typemap
 from .schema import _is_list_like, _is_map_like
-from .speedups import unpack_byte_array
 from .thrift_structures import parquet_thrift, read_thrift
 from .util import val_to_num, byte_buffer, ex_from_sep
 

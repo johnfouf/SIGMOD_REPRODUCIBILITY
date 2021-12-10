@@ -16,7 +16,6 @@ if version.parse(numba.__version__) < version.parse("0.49"):
 else:
     from numba.experimental import jitclass
 
-from .speedups import unpack_byte_array
 from .thrift_structures import parquet_thrift
 from .util import byte_buffer
 

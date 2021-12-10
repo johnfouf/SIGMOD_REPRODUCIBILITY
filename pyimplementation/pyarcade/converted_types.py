@@ -22,7 +22,6 @@ import sys
 
 from .thrift_structures import parquet_thrift
 from .util import PY2
-from .speedups import array_decode_utf8
 
 logger = logging.getLogger('parquet')  # pylint: disable=invalid-name
 

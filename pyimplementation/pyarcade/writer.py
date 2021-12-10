@@ -17,7 +17,6 @@ from fastparquet.util import join_path
 from .thrift_structures import write_thrift
 import random
 import snappy
-import zstd
 import zlib
 m.patch()
 
@@ -35,7 +34,6 @@ from .util import (default_open, default_mkdirs,
                    index_like, PY2, STR_TYPE,
                    check_column_names, metadata_from_many, created_by,
                    get_column_metadata)
-from .speedups import array_encode_utf8, pack_byte_array
 
 
 
@@ -875,12 +873,11 @@ def encode_plain_parquet(data, se):
     type = 'i'*len(headindex)
     output.write(struct.pack(type, *headindex))
 
-    out = convert(data, se)
     l2 = output.tell()
     if se.type == parquet_thrift.Type.BYTE_ARRAY:
-        output.write(zlib.compress(msgpack.dumps(list(out))))
+        output.write(zlib.compress(msgpack.dumps(list(data))))
     else:
-        output.write(zlib.compress(out.tobytes()))
+        output.write(zlib.compress(data.tobytes()))
     l3 = output.tell()
     headindex[1] = l3-l2
     headindex[2] = len(data)
