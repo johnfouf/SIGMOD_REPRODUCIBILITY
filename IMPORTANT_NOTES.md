@@ -13,7 +13,8 @@ arcadecpp/runner executable compresses csv files with C++
 	This is used in experiment 4.2 to compare the cost function to other alternatives enforcing dictionary encoding in any case.   
 
 Compress with Python, local, global, indirect and adaptive encoding:
-	```
+
+```
   from pyimplementation.pyarcade import write
 	import pyimplementation.global_encoding as global_encoding
 	import pandas as pd
@@ -27,11 +28,11 @@ Compress with Python, local, global, indirect and adaptive encoding:
     files.
 
 Read executable scans, filter scans, and looks-up specific rows as follows:
-   ```
+```
    ./read file.diff 0   -- full scans column 0 of a file and prints the row count
-    ./read file.diff 0 "value" 1 1 -- filter scan first column for value, bool values 1 1 means that zone-maps and diff min max values are enabled, otherwise
-    ./read file.diff 0 600 -- returns value with row id = 600 (starts from 0)
-    ```
+   ./read file.diff 0 "value" 1 1 -- filter scan first column for value, bool values 1 1 means that zone-maps and diff min max values are enabled, otherwise
+   ./read file.diff 0 600 -- returns value with row id = 600 (starts from 0)
+```
     This executable reads files produced with both Python or C++. 
     
     
@@ -47,10 +48,10 @@ Using fastparquet interface:
 	#read
 	from pyimplementation.fastparquet import ParquetFile
 	import pandas as pd
-  pf = ParquetFile('inputfile')
-  df_full = pf.to_pandas()
-  df = pf.to_pandas(['column_name'], filters=[('column_name', '=', 'value')])
-  newdf = df[(df.c1 == "value")]
+        pf = ParquetFile('inputfile')
+        df_full = pf.to_pandas()
+        df = pf.to_pandas(['column_name'], filters=[('column_name', '=', 'value')])
+        newdf = df[(df.c1 == "value")]
     
 ```
 
