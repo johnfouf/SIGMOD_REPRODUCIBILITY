@@ -63,6 +63,7 @@ Datasets from yelp and edgar aren’t exactly the same as the ones used in the e
 Files pyimplementation/global_encoding_opt.py, pyimplementation/pyarcade/writer_opt.py, arcadecpp/writer_opt.cpp contain optimized versions of the compression algorithms. All the claims are still valid, what has changed is that all the compression techniques compress faster, producing the same files, and using these optimisations, the calculation of differential dictionaries is even faster. For example, in case of C++ implementation, the initial version was using set difference to calculate differences between the blocks. By using an unoredered_map the algorithm runs faster when it has to do with differential pages.  
 To test with this simply rename the files (i.e., rename writer_opt.cpp to writer.cpp and run the experiments).
 https://github.com/madgik/arcade contains the last and more stable version of the proposed format implemented in C++. 
+
 The code in this repository, is mostly tested with 1 or 2 columns and mainly with columns that are dictionary encoded. 
 
 The source code has been tested on Ubuntu and MacOS, but if the requirements are successfully installed then it should also run on Windows.
