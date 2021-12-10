@@ -10,7 +10,6 @@ import numba
 import numpy as np
 import msgpack
 import msgpack_numpy as m
-from .speedups import unpack_byte_array
 from .thrift_structures import parquet_thrift
 from .util import byte_buffer
 import struct

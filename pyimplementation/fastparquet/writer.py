@@ -17,7 +17,6 @@ from fastparquet.util import join_path
 from .thrift_structures import write_thrift
 import random
 import snappy
-import zstd
 m.patch()
 
 
@@ -34,7 +33,6 @@ from .util import (default_open, default_mkdirs,
                    index_like, PY2, STR_TYPE,
                    check_column_names, metadata_from_many, created_by,
                    get_column_metadata)
-from .speedups import array_encode_utf8, pack_byte_array
 
 
 
@@ -619,8 +617,8 @@ def encode_plain(vals, format, global_dict, sizediff, diffvals, distvals, compre
     if distvals[0] == 1:
         return encode_plain_parquet(vals, se)
     sdictvals = sorted(vals.unique()) #perhaps could make it faster
-    for i in range(len(sdictvals)):
-        sdictvals[i] = sdictvals[i].encode('utf_8')
+#    for i in range(len(sdictvals)):
+#        sdictvals[i] = sdictvals[i].encode('utf_8')
     if distvals[0] == -1 and len(vals)>0 and len(sdictvals)*1.0/len(vals)>0.7 :
        distvals[0] = 1
        return encode_plain_parquet(vals, se)
@@ -741,9 +739,9 @@ def encode_plain(vals, format, global_dict, sizediff, diffvals, distvals, compre
     #output.write(struct.pack(type1*len(offsets), *offsets))
         if minmax[0] != minmax[1]:
             if compression == 'SNAPPY':
-                output.write(snappy.compress(array(type1,[global_dict[y.encode('utf_8')] for y in vals]).tostring()))
+                output.write(snappy.compress(array(type1,[global_dict[y] for y in vals]).tostring()))
             else:
-                output.write(array(type1,[global_dict[y.encode('utf_8')] for y in vals]).tostring())
+                output.write(array(type1,[global_dict[y] for y in vals]).tostring())
         else:
             output.write(struct.pack('i',global_dict[minmax[0]]))
     
@@ -812,9 +810,9 @@ def encode_plain(vals, format, global_dict, sizediff, diffvals, distvals, compre
         
         if minmax[0] != minmax[1]:
           if compression == 'SNAPPY':
-            output.write(snappy.compress(array(type1,[global_dict[y.encode('utf_8')] for y in vals]).tostring()))
+            output.write(snappy.compress(array(type1,[global_dict[y] for y in vals]).tostring()))
           else:
-            output.write(array(type1,[global_dict[y.encode('utf_8')] for y in vals]).tostring())
+            output.write(array(type1,[global_dict[y] for y in vals]).tostring())
         else:
     	    output.write(struct.pack('i',global_dict[minmax[0]]))
     #np.save(output, np.array([coldict[y] for y in vals], dtype=type1))
@@ -886,12 +884,11 @@ def encode_plain_parquet(data, se):
     type = 'i'*len(headindex)
     output.write(struct.pack(type, *headindex))
 
-    out = convert(data, se)
     l2 = output.tell()
     if se.type == parquet_thrift.Type.BYTE_ARRAY:
-        output.write(zlib.compress(msgpack.dumps(list(out))))
+        output.write(zlib.compress(msgpack.dumps(list(data))))
     else:
-        output.write(zlib.compress(out.tobytes()))
+        output.write(zlib.compress(data.tobytes()))
     l3 = output.tell()
     headindex[1] = l3-l2
     headindex[2] = len(data)
