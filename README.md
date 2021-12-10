@@ -42,7 +42,8 @@ gunzip -r reprod_datasets
 D2) 
 
 - For experiment section 4.1 (figures 5 and 6)
-        ```
+       
+	```
 	python3 experiment4.1_compression.py
 	./experiment4.1_read.sh   (ran as root as it drops frees pagecache, dentries and inodes per command)
         ```
@@ -59,8 +60,10 @@ D2)
 
 
 - For experiment section 4.3 (tables 2 and 3)
-	```python3 experiment4.3_compression.py
-	./experiment4.3_read.sh ```  (run as root as it frees pagecache, dentries and inodes per command)
+	```
+	python3 experiment4.3_compression.py
+	./experiment4.3_read.sh 
+	```  (run as root as it frees pagecache, dentries and inodes per command)
         
 	The first command compresses the files, which are stored at the current directory
 	The second executable runs filtered scan with 2 values and prints # of blocks and offsets scan that are omit, total and I/O times using gettimeofday function 
@@ -69,11 +72,15 @@ D2)
 
 - For experiment section 4.4 (figure 8)
     for C implementation run:
+    ```
         arcadecpp/runner < experiment4.4_C_compress.queries
          ./experiment4.4_read_C.sh  (run as root as it frees pagecache, dentries and inodes per command)
+    ```
     for Python implementation run
+    ```
         python3 experiment4.4_compress_python.py
         ./experiment4.4_read_PYTHON.sh (run as root as it frees pagecache, dentries and inodes per command)
+    ```
         
     In both cases:
         The first command compresses the citation file with 2 ways and prints the times
