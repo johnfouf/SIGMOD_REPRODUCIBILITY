@@ -1,4 +1,4 @@
-CPPFLAGS = -O3  -std=c++20   -fcoroutines -lz -lsnappy -freorder-blocks-algorithm=simple -fPIC
+CPPFLAGS = -O3  -std=c++20 -Imsgpack-c-cpp_master/include/  -fcoroutines -lz -lsnappy -freorder-blocks-algorithm=simple -fPIC
 
 
 %.o: %.cpp
