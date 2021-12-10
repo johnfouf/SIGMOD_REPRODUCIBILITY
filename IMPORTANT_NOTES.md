@@ -15,7 +15,7 @@ arcadecpp/runner executable compresses csv files with C++
 Compress with Python, local, global, indirect and adaptive encoding:
 
 ```
-  from pyimplementation.pyarcade import write
+        from pyimplementation.pyarcade import write
 	import pyimplementation.global_encoding as global_encoding
 	import pandas as pd
 	df = pd.read_csv("inputfile.csv") # edit with csv input file path
@@ -24,8 +24,9 @@ Compress with Python, local, global, indirect and adaptive encoding:
 	write("outfile.diff", df, row_group_offsets=65535, format="ADAPTIVE")
 	global_encoding.write_indirect(df,"outfile.unindirect",0,65535)
 ```
-    Using any csv file, and the above python snippet, it is possible to produce 4 compressed      
-    files.
+
+Using any csv file, and the above python snippet, it is possible to produce 4 compressed      
+files.
 
 Read executable scans, filter scans, and looks-up specific rows as follows:
 ```
@@ -33,7 +34,7 @@ Read executable scans, filter scans, and looks-up specific rows as follows:
    ./read file.diff 0 "value" 1 1 -- filter scan first column for value, bool values 1 1 means that zone-maps and diff min max values are enabled, otherwise
    ./read file.diff 0 600 -- returns value with row id = 600 (starts from 0)
 ```
-    This executable reads files produced with both Python or C++. 
+This executable reads files produced with both Python or C++. 
     
     
 Using fastparquet interface:
