@@ -426,35 +426,6 @@ def write_indirect(data,filen, ordering, row_group_offsets):
 
 
 
-import pyarrow as pa
-import pyarrow.parquet as pq
-
-def write_parquet(data,filen, row_group_offsets):
-    if row_group_offsets == -1:
-        table = pa.Table.from_pandas(data)
-        pq.write_table(table, filen)
-        return
-    
-    l = len(data)
-    nparts = max((l - 1) // row_group_offsets + 1, 1)
-    chunksize = max(min((l - 1) // nparts + 1, l), 1)
-    
-    ## write default no row groups
-    #pq.write_table(table, 'example.parquet',compression={'10.1145/3025453.3025878': 'snappy', '10.1145/2317956.2318088': 'gzip'},use_dictionary=['10.1145/3025453.3025878','10.1145/2317956.2318088'])
-    
-    
-    
-    c = 0
-    table = pa.Table.from_pandas(data)
-    writer = pq.ParquetWriter(filen, table.schema, use_dictionary = True)
-    for i in range(nparts):
-        if i!=nparts:
-            writer.write_table(table[c*chunksize:chunksize+c*chunksize])
-            c+=1
-        else:
-            writer.write_table(table[:len(data)%chunksize])
-    writer.close()
-    
 
 
 
