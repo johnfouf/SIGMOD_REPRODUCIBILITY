@@ -1,4 +1,4 @@
-2. INSTRUCTIONS TO TEST WITH OTHER DATASETS AND VALIDATE:
+**1. INSTRUCTIONS TO TEST WITH OTHER DATASETS AND VALIDATE:**
 
 arcadecpp/runner executable compresses csv files with C++
     It has a terminal and receives queries in the following format:
@@ -54,7 +54,7 @@ Using fastparquet interface:
     
 ```
 
-3. NOTES:
+**2. NOTES:**
 
 Datasets from yelp and edgar aren’t exactly the same as the ones used in the experiments of the paper. They were re-created and this caused some small differences in experiments 4.2 and 4.3. For example, in section 4.3, differential encoding omits 169 blocks instead of 172 and local/global encoding omits 9 blocks instead of 10.
 
