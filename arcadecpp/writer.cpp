@@ -3,7 +3,7 @@
 #include "bloom/bloom_filter.hpp"
 #include "arcade.h"
 #include <thread>
-#include <msgpack.hpp>
+#include "msgpack.hpp"
 #include <zlib.h>
 using namespace std;
 using namespace Arcade;
@@ -137,9 +137,11 @@ int compress_batch(vector<string> &vals, FILE *f1, bloom_filter *filter, bool &i
     if ((global_dict_memory > CACHE_SIZE*2 and !strcmp(costf,"CF")) or globdsize == 0){
         diffdict = 0;
     }
-    if ((global_dict_memory > CACHE_SIZE and !strcmp(costf,"CD")) or globdsize == 0){
-        diffdict = 0;
-    }
+    
+    if ((!strcmp(costf,"CD") and (global_dict_memory > CACHE_SIZE or (globdsize>200000 and shortvals)))  ) {diffdict = 0;}
+//    if ((global_dict_memory > CACHE_SIZE and !strcmp(costf,"CD")) or globdsize == 0){
+//        diffdict = 0;
+//    }
     
     vector<string> diff;
 

@@ -450,7 +450,7 @@ def rpcoding(dict):
 
 ## to check if the output is sorted and if the set is not necessary
 def differ(first, second):
-    #second = set(second)
+    second = set(second)
     return [item for item in first if item not in second]   
 
 
@@ -611,14 +611,14 @@ def encode_plain_global(vals,global_dict, sizediff, diffvals, se):
 
 import numpy
 
-def encode_plain(blocknum, vals, format, global_dict, sizediff, blocksizes, diffvals, distvals, compression, se):
+def encode_plain(blocknum, vals, format, global_dict, coldict, sizediff, blocksizes, diffvals, distvals, compression, se):
     """PLAIN encoding; returns byte representation"""
     if format not in ['ADAPTIVE','LOCAL','DIFF']:
         return encode_plain_parquet(vals, se)
     if distvals[0] == 1:
         return encode_plain_parquet(vals, se)
-    sdictvals = list(numpy.sort(vals.unique())) #perhaps could make it faster
-    
+    #sdictvals = list(numpy.sort(vals.unique())) #perhaps could make it faster
+    sdictvals = sorted(vals.unique()) 
     if distvals[0] == -1 and len(vals)>0 and len(sdictvals)*1.0/len(vals)>0.7 :
        distvals[0] = 1
        return encode_plain_parquet(vals, se)
@@ -643,29 +643,25 @@ def encode_plain(blocknum, vals, format, global_dict, sizediff, blocksizes, diff
     l2 = output.tell()
     headindex[6] = l2-l1
     diffdict = 1
-    if format == "LOCAL":
-        diffdict = 0
-    if diffdict == 1:
-        diff = differ(sdictvals, global_dict)
-        ldiff  = len(diff)
-        if (ldiff>0):
+#    if format == "LOCAL":
+#        diffdict = 0
+   
+    diff = differ(sdictvals, global_dict)
+    ldiff  = len(diff)
+    if (ldiff>0):
             minmaxdiff[0] = diff[0]
             minmaxdiff[1] = diff[ldiff-1]
-    #if 1==1:
-    #if random.randint(1,10) > 5:
-    
-    diffpacked = ''.encode()
-    locpacked = ''.encode()
     lgdict = len(global_dict)
-
-    if format == "LOCAL":
-        diffdict = 0
-    elif format == "DIFF" and lgdict != 0:
-        diffdict = 1
-    elif lgdict>200000 or lgdict == 0:
+    diffdict = 1
+    diffpacked = ''.encode('utf_8')
+    locpacked = ''.encode('utf_8')
+    
+    if lgdict>200000 or lgdict == 0:
         diffdict = 0
     elif  (lgdict > 0 and ldiff*1.0/ll > 0.99) or ll-ldiff<=1:
         diffdict = 0
+    elif ldiff*1.0/ll < 0.01:
+        diffdict = 1
     elif (lgdict>=256 and ll < 256) or (lgdict>=65536 and ll < 65536)  or  (lgdict < 256 and (lgdict + ldiff) > 255) or ( lgdict < 65536 and (lgdict + ldiff) > 65535) :
 
         diffcount = len(sizediff) 
@@ -697,7 +693,8 @@ def encode_plain(blocknum, vals, format, global_dict, sizediff, blocksizes, diff
         elif pblocks * (diffs * len(vals)) -  round(pblocks*1.0/(diffcount)) * sum(blocksizes) > 0:
             diffdict = 0
                   
-    #diffdict = 1
+    if format == "LOCAL":
+        diffdict = 0
     #if (lgdict>=256 and ll < 256) or (lgdict>=65536 and ll < 65536)  or  (lgdict < 256 and (lgdict + ldiff) > 255) or ( lgdict < 65536 and (lgdict + ldiff) > 65535) :
     #    diffdict = 0
     #if 1!=1:
@@ -707,7 +704,8 @@ def encode_plain(blocknum, vals, format, global_dict, sizediff, blocksizes, diff
     
     if  diffdict == 0:
         headindex[5] = 1
-        global_dict.clear()
+        coldict.clear()
+        del global_dict[:]
         del sizediff[:]
         del blocksizes[:]
         del diffvals[:]
@@ -721,15 +719,12 @@ def encode_plain(blocknum, vals, format, global_dict, sizediff, blocksizes, diff
              output.write(snappy.compress(locpacked))
         else:
              output.write(locpacked)
-
         l2 = output.tell()
         headindex[0] = l2-l1
     	
-        point = 0
-        for vv in sdictvals:
-             global_dict[vv] = point
-             point+=1
-        
+    
+        global_dict.extend(sdictvals)
+        coldict.update(dict(((x, y) for y, x in enumerate(sdictvals))))
     #offsets = [coldict[y] for y in vals]
         if ll<256:
             type1 = 'B'
@@ -744,11 +739,11 @@ def encode_plain(blocknum, vals, format, global_dict, sizediff, blocksizes, diff
     #output.write(struct.pack(type1*len(offsets), *offsets))
         if minmax[0] != minmax[1]:
             if compression == 'SNAPPY':
-                output.write(snappy.compress(array(type1,[global_dict[y] for y in vals]).tostring()))
+                output.write(snappy.compress(array(type1,[coldict[y] for y in vals]).tostring()))
             else:
-                output.write(array(type1,[global_dict[y] for y in vals]).tostring())
+                output.write(array(type1,[coldict[y] for y in vals]).tostring())
         else:
-            output.write(struct.pack('i',global_dict[minmax[0]]))
+            output.write(struct.pack('i',coldict[minmax[0]]))
     
     
     #np.save(output, np.array([coldict[y] for y in vals], dtype=type1))
@@ -769,26 +764,14 @@ def encode_plain(blocknum, vals, format, global_dict, sizediff, blocksizes, diff
         l11 = output.tell()
         headindex[8]=l11-l10
         headindex[5]=0
-        point = lgdict
-        for vv in diff:
-            global_dict[vv] = point
-            point+=1
+        global_dict.extend(diff)
         #global_dict.extend(diff)
         headindex[2] = len(vals)
         headindex[4] = ldiff
         lgdict += ldiff
         l1 = output.tell()
-         #RPFC encoding
-    	#fcoding(sdictvals)
-    	#output.write(msgpack.dumps(sdictvals))
-    	#l2 = output.tell()
-    	#headindex[0] = l2-l1
-    	#output.write(msgpack.dumps(grammar))
-    	#headindex[7] = output.tell() - l2
-    	
-    	#### simple encoding
         if len(diffpacked) == 0:
-              diffpacked = msgpack.dumps(diff)
+            diffpacked = msgpack.dumps(diff)
         if compression == 'SNAPPY':
             output.write(snappy.compress(diffpacked))
         else:
@@ -796,12 +779,14 @@ def encode_plain(blocknum, vals, format, global_dict, sizediff, blocksizes, diff
         l2 = output.tell()
         headindex[0] = l2-l1
         
-        
         sizediff.append(headindex[0])
         if headindex[4]>0:
             diffvals.append(blocknum)
             diffvals.append(headindex[4])
-            
+        if (lgdict<65535):
+            coldict.update(dict(((x,y) for y, x in enumerate(global_dict))))
+        else:
+            coldict.update(dict(((x, y+lgdict-ldiff) for y, x in enumerate(diff))))
     #offsets = [coldict[y] for y in vals]
         if lgdict<256:
             type1 = 'B'
@@ -817,11 +802,11 @@ def encode_plain(blocknum, vals, format, global_dict, sizediff, blocksizes, diff
     #output.write(struct.pack(type1*len(offsets), *offsets))
         if minmax[0] != minmax[1]:
           if compression == 'SNAPPY':
-            output.write(snappy.compress(array(type1,[global_dict[y] for y in vals]).tostring()))
+            output.write(snappy.compress(array(type1,[coldict[y] for y in vals]).tostring()))
           else:
-            output.write(array(type1,[global_dict[y] for y in vals]).tostring())
+            output.write(array(type1,[coldict[y] for y in vals]).tostring())
         else:
-    	    output.write(struct.pack('i',global_dict[minmax[0]]))
+    	    output.write(struct.pack('i',coldict[minmax[0]]))
     #np.save(output, np.array([coldict[y] for y in vals], dtype=type1))
     
         l3 = output.tell()
@@ -913,7 +898,7 @@ encode = {
 }
 
 
-def make_definitions(data,format, global_dictionary, sizediff, blocksizes, diffvals, distvals, compression, no_nulls):
+def make_definitions(data,format, global_dictionary, coldict, sizediff, blocksizes, diffvals, distvals, compression, no_nulls):
     """For data that can contain NULLs, produce definition levels binary
     data: either bitpacked bools, or (if number of nulls == 0), single RLE
     block."""
@@ -928,7 +913,7 @@ def make_definitions(data,format, global_dictionary, sizediff, blocksizes, diffv
         out = data
     else:
         se = parquet_thrift.SchemaElement(type=parquet_thrift.Type.BOOLEAN)
-        out = encode_plain(data.notnull(),format, global_dictionary, sizediff, blocksizes, diffvals,distvals, compression, se)
+        out = encode_plain(data.notnull(),format, global_dictionary,coldict, sizediff, blocksizes, diffvals,distvals, compression, se)
 
         encode_unsigned_varint(len(out) << 1 | 1, temp)
         head = temp.so_far().tostring()
@@ -938,7 +923,7 @@ def make_definitions(data,format, global_dictionary, sizediff, blocksizes, diffv
     return block, out
 
 
-def write_column(blocknum, f,format, global_dictionary, sizediff, blocksizes, diffvals,distvals, data, selement, compression=None):
+def write_column(blocknum, f,format, global_dictionary,coldict, sizediff, blocksizes, diffvals,distvals, data, selement, compression=None):
     """
     Write a single column of data to an open Parquet file
 
@@ -974,7 +959,7 @@ def write_column(blocknum, f,format, global_dictionary, sizediff, blocksizes, di
             num_nulls = 0
         else:
             num_nulls = len(data) - data.count()
-        definition_data, data = make_definitions(data,format, global_dictionary, sizediff, blocksizes, diffvals,distvals,compression, num_nulls == 0)
+        definition_data, data = make_definitions(data,format, global_dictionary, coldict, sizediff, blocksizes, diffvals,distvals,compression, num_nulls == 0)
         if data.dtype.kind == "O" and not is_categorical_dtype(data.dtype):
             try:
                 if selement.type == parquet_thrift.Type.INT64:
@@ -1044,7 +1029,7 @@ def write_column(blocknum, f,format, global_dictionary, sizediff, blocksizes, di
         data = data.astype('int32')
 
     bdata = encode[encoding](
-            blocknum, data,format, global_dictionary, sizediff,blocksizes, diffvals,distvals, compression, selement)
+            blocknum, data,format, global_dictionary,coldict, sizediff,blocksizes, diffvals,distvals, compression, selement)
     
     
     #bdata += 8 * b'\x00'
@@ -1134,7 +1119,7 @@ def write_column(blocknum, f,format, global_dictionary, sizediff, blocksizes, di
     return chunk
 
 
-def make_row_group(blocknum, f, format, global_dictionary, sizediff,blocksizes, diffvals, distvals, data, schema, compression=None):
+def make_row_group(blocknum, f, format, global_dictionary, coldict, sizediff,blocksizes, diffvals, distvals, data, schema, compression=None):
     """ Make a single row group of a Parquet file """
     rows = len(data)
     if rows == 0:
@@ -1161,7 +1146,7 @@ def make_row_group(blocknum, f, format, global_dictionary, sizediff,blocksizes, 
                 comp = compression
             
             t1 = f.tell()
-            chunk = write_column(blocknum, f,format, global_dictionary[i-1], sizediff[i-1],blocksizes[i-1], diffvals[i-1],distvals[i-1], data[column.name], column,
+            chunk = write_column(blocknum, f,format, global_dictionary[i-1],coldict[i-1], sizediff[i-1],blocksizes[i-1], diffvals[i-1],distvals[i-1], data[column.name], column,
                                  compression=comp)
             
             t2 = f.tell()
@@ -1181,12 +1166,12 @@ def make_row_group(blocknum, f, format, global_dictionary, sizediff,blocksizes, 
     return rg
 
 
-def make_part_file(f, global_dictionary, sizediff,blocksizes, diffvals, data, schema, compression=None, fmd=None):
+def make_part_file(f, global_dictionary,coldict, sizediff,blocksizes, diffvals, data, schema, compression=None, fmd=None):
     if len(data) == 0:
         return
     with f as f:
         f.write(MARKER)
-        rg = make_row_group(f, global_dictionary, sizediff,blocksizes, diffvals,data, schema, compression=compression)
+        rg = make_row_group(f, global_dictionary,coldict, sizediff,blocksizes, diffvals,data, schema, compression=compression)
         if fmd is None:
             fmd = parquet_thrift.FileMetaData(num_rows=len(data),
                                               schema=schema,
@@ -1252,7 +1237,7 @@ def make_metadata(data, has_nulls=True, ignore_columns=[], fixed_text=None,
     return fmd
 
 
-def write_simple(fn,format, global_dictionary, sizediff,blocksizes, diffvals, distvals, data, fmd, row_group_offsets, chunksize, compression,
+def write_simple(fn,format, global_dictionary,coldict, sizediff,blocksizes, diffvals, distvals, data, fmd, row_group_offsets, chunksize, compression,
                  open_with, has_nulls, append=False):
     """
     Write to one single file (for file_scheme='simple') 
@@ -1292,7 +1277,7 @@ def write_simple(fn,format, global_dictionary, sizediff,blocksizes, diffvals, di
             blocks[i] = f.tell()
             end = (row_group_offsets[i+1] if i < (len(row_group_offsets) - 1)
                    else None)
-            rg = make_row_group(blocknum, f, format, global_dictionary, sizediff,blocksizes, diffvals, distvals, data[start:end], fmd.schema,
+            rg = make_row_group(blocknum, f, format, global_dictionary,coldict, sizediff,blocksizes, diffvals, distvals, data[start:end], fmd.schema,
                                 compression=compression)
             if rg is not None:
                 fmd.row_groups.append(rg)
@@ -1426,10 +1411,12 @@ def write(filename, data, row_group_offsets=50000000,
                        has_nulls)
     ignore = partition_on if file_scheme != 'simple' else []
     
-    
+    coldict = []
+    for i in range(len(data.columns)):
+        coldict.append({})
     global_dictionary = []
     for i in range(len(data.columns)):
-        global_dictionary.append({})
+        global_dictionary.append([])
         
     distvals = []
     for i in range(len(data.columns)):
@@ -1451,7 +1438,7 @@ def write(filename, data, row_group_offsets=50000000,
                         times=times, index_cols=index_cols)
 
     if file_scheme == 'simple':
-        write_simple(filename,format, global_dictionary, sizediff,blocksizes, diffvals,distvals, data, fmd, row_group_offsets, chunksize,
+        write_simple(filename,format, global_dictionary,coldict, sizediff,blocksizes, diffvals,distvals, data, fmd, row_group_offsets, chunksize,
                      compression, open_with, has_nulls, append)
     elif file_scheme in ['hive', 'drill']:
         if append:
@@ -1482,7 +1469,7 @@ def write(filename, data, row_group_offsets=50000000,
             else:
                 partname = join_path(filename, part)
                 with open_with(partname, 'wb') as f2:
-                    rg = make_part_file(f2,global_dictionary, sizediff,blocksizes, diffvals, data[start:end], fmd.schema,
+                    rg = make_part_file(f2,global_dictionary, sizediff,coldict, blocksizes, diffvals, data[start:end], fmd.schema,
                                         compression=compression, fmd=fmd)
                 for chunk in rg.columns:
                     chunk.file_path = part

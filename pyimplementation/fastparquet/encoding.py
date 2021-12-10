@@ -91,6 +91,7 @@ def read_plain_parquet(raw_bytes, global_dictionary,filters, type, count, width=
             vv = numpy.array(msgpack.loads(zlib.decompress(raw_bytes[28:28+ind[1]])), dtype = 'O')
             return numpy.array(np.where(vv == search_filter[0][1], vv, b''),dtype = 'O')
             #for i in range(len(vv)):
+            #    print (vv[i], search_filter[0][1])
             #    if vv[i] != search_filter[0][1]: vv[i] = b''
             #return vv
            

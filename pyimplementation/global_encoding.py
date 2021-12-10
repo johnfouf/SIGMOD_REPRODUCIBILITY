@@ -6,12 +6,7 @@ from io import BytesIO as cStringIO
 from array import array
 import zlib
 
-gdict = {}
-blocksdump = []
-
-def globalorder(f,global_dict, valsdict, chunk, ordering):
-    global gdict
-    global blocks
+def write_mostlyordered_block(f,coldict,chunk,ll):
     output = cStringIO()
     output.truncate(0)
     headindex = [0]*4
@@ -24,15 +19,185 @@ def globalorder(f,global_dict, valsdict, chunk, ordering):
     output.write(msgpack.dumps(minmax))
     l2 = output.tell()
     headindex[0] = l2-l1
-    v = len(gdict)
-    for val in chunk:
-       if val not in gdict:
-          gdict[val] = v
-          v+=1
-     
+    if ll<256:
+        type1 = 'B'
+        headindex[2] = 2
+    elif ll<65536:
+        type1 = 'H'
+        #type1 = np.int16
+        headindex[2] = 1
+    else:
+        	type1 = 'i'
+        #type1 = np.int32
+    l3 = output.tell()
+    #offsets = [coldict[y] for y in chunk]
+    #output.write(struct.pack(type1*len(offsets), *offsets))
+    if minmax[0] != minmax[1]:
+        offsets = [coldict[y] for y in chunk]
+        output.write(array(type1,offsets).tostring())
+    else:
+    	output.write(struct.pack('i',coldict[minmax[0]]))
+    l4 = output.tell()
+    headindex[1] = l4-l3
+    headindex[3] = len(chunk)
+    output.seek(0)
+    output.write(struct.pack(type, *headindex))
+    f.write(output.getvalue())
+
+def mostlyordered(data,filen, row_group_offsets, pitch, lookahead, batch):
+    f = open(filen,"w+b")
+    f.write(MARKER)
+    headindex = [0]*6
+    l = len(data)
+    headindex[0] = l
+    headindex[1] = len(data.columns)
+    type = 'i'*len(headindex)
+    f.write(struct.pack(type, *headindex))
+    nparts = max((l - 1) // row_group_offsets + 1, 1)
+    chunksize = max(min((l - 1) // nparts + 1, l), 1)
+    batch_size = 20
+    parts = len(data)//batch_size
+    batch = [None]*batch_size
+
+    for col in data:
+        estimatedvals = int(len(data[col][0:int(lookahead*l)].unique())/lookahead)
+        global_dict = {}
+        glob_dict = {}
+        #global_list = [None]*estimatedvals*pitch
+        global_list = []
+        unsorted_list = []
+        i = 0
+        j = 1
+        k=0
+        import bisect 
+
+        countvals = 0
+        unsorted_counter = estimatedvals*pitch
+        for rowid, val in enumerate(data[col]):
+            countvals+=1
+            if val not in glob_dict:
+                batch[k] = val
+                glob_dict[val] = 1
+                k+=1
+                if k == 20:
+                    for val in batch:
+                        temppos = 0
+                        if len(global_list) == 0: 
+                            global_list.append((val,((estimatedvals*pitch-1))//2))
+                            global_dict[val]=(estimatedvals*pitch-1)//2
+                        else:
+                            for ll,v1 in enumerate(global_list):
+                                
+                                if v1[0] > val:
+                                    if v1[1]-temppos>1:
+                                        bisect.insort(global_list, (val,(v1[1]+temppos)//2))
+                                        global_dict[val] = (v1[1]+temppos)//2
+                                        break
+                                    else:
+                                        unsorted_list.append((val,unsorted_counter))
+                                        global_dict[val] = unsorted_counter
+                                        unsorted_counter += 1
+                                        break
+
+                                elif  ll == len(global_list)-1:
+                                    if estimatedvals*pitch-temppos>1:
+                                        global_list.append((val,((estimatedvals*pitch-1)+temppos)//2))
+                                        global_dict[val] = ((estimatedvals*pitch-1)+temppos)//2
+                                        break
+                                    else:
+                                        unsorted_list.append((val,unsorted_counter))
+                                        global_dict[val] = unsorted_counter
+                                        unsorted_counter += 1
+                                        break
+                                else:
+                                    temppos = v1[1]
+                    k = 0
+                    
+            if (rowid >= chunksize and rowid%chunksize == 0) or rowid == l-1:
+              
+              if val not in glob_dict:
+                  batch[k]=val
+                  k+=1
+                  glob_dict[val] = 1
+              for val in batch[0:k]:
+                        temppos = 0
+                        if len(global_list) == 0: 
+                            global_list.append((val,((estimatedvals*pitch-1))//2))
+                            global_dict[val]=(estimatedvals*pitch-1)//2
+                        else:
+                            for ll,v1 in enumerate(global_list):
+                                
+                                if v1[0] > val:
+                                    if v1[1]-temppos>1:
+                                        bisect.insort(global_list, (val,(v1[1]+temppos)//2))
+                                        global_dict[val] = (v1[1]+temppos)//2
+                                        break
+                                    else:
+                                        unsorted_list.append((val,unsorted_counter))
+                                        global_dict[val] = unsorted_counter
+                                        unsorted_counter += 1
+                                        break
+
+                                elif  ll == len(global_list)-1:
+                                    if estimatedvals*pitch-temppos>1:
+                                        global_list.append((val,((estimatedvals*pitch-1)+temppos)//2))
+                                        global_dict[val] = ((estimatedvals*pitch-1)+temppos)//2
+                                        break
+                                    else:
+                                        unsorted_list.append((val,unsorted_counter))
+                                        global_dict[val] = unsorted_counter
+                                        unsorted_counter += 1
+                                        break
+                                else:
+                                    temppos = v1[1]
+              if rowid == l-1:
+                write_mostlyordered_block(f, global_dict, data[col][l-countvals-1: l], unsorted_counter)        
+        
+              else:
+                
+                write_mostlyordered_block(f, global_dict, data[col][(rowid//chunksize)*chunksize-chunksize: (rowid//chunksize)*chunksize], unsorted_counter)  
+              k=0 
+              countvals=0     
+        
+            
+        finallist = [""]*(estimatedvals*pitch + unsorted_counter)
+       
+       
+        for k,val in global_dict.items():
+            finallist[val] = k
+        l1 = f.tell()
+        f.write(msgpack.dumps(finallist))
+        l2 = f.tell()
+        headindex[2] = l1
+        headindex[3] = l2-l1
+        headindex[4] = estimatedvals*pitch
+        headindex[5] = unsorted_counter
+        f.seek(4)
+        f.write(struct.pack(type, *headindex))
+        
+        f.close()
+
+
+
+
+def globalorder(f,global_dict,chunk):
+    output = cStringIO()
+    output.truncate(0)
+    headindex = [0]*4
+    minmax = [None]*2
+    minmax[0] = min(chunk)
+    minmax[1] = max(chunk)
+    type = 'i'*len(headindex)
+    output.write(struct.pack(type, *headindex))
+    l1 = output.tell()
+    output.write(msgpack.dumps(minmax))
+    l2 = output.tell()
+    headindex[0] = l2-l1
+
+    coldict = dict(((x, y) for y, x in enumerate(global_dict)))
     l3 = output.tell()
     if minmax[0] != minmax[1]:
-        offsets = [gdict[y] for y in chunk]
+        offsets = [coldict[y] for y in chunk]
         ll = max(offsets)
         if ll<256:
             type1 = 'B'
@@ -44,21 +209,22 @@ def globalorder(f,global_dict, valsdict, chunk, ordering):
         else:
             type1 = 'i'
         #type1 = np.int32
+    
+    
+        
         output.write(struct.pack(type1*len(offsets), *offsets))
     else:
-    	output.write(struct.pack('i',global_dict[minmax[0]]))
+    	output.write(struct.pack('i',coldict[minmax[0]]))
     #output.write(array(type1,[coldict[y] for y in chunk]).tostring())
     l4 = output.tell()
     headindex[1] = l4-l3
     headindex[3] = len(chunk)
     output.seek(0)
     output.write(struct.pack(type, *headindex))
-    blocksdump.append(output.getvalue())
+    f.write(output.getvalue())
 
 
 def write_global(data,filen, ordering, row_group_offsets):
-    global gdict
-    global blocksdump
     f = open(filen,"w+b")
     f.write(MARKER)
     headindex = [0]*4
@@ -74,32 +240,28 @@ def write_global(data,filen, ordering, row_group_offsets):
     headindex[3] = nparts
     blocksind = f.tell()
     f.write(struct.pack('L'*len(blocks),*blocks))
-    valsdict = []
-    global_dict = {}
     for col in data:
+        if ordering == 1:
+            global_dict = sorted(data[col].unique())
+        else:
+            global_dict = list(data[col].unique())
+        l1 = f.tell()
+        f.write(msgpack.dumps(global_dict))
+        l2 = f.tell()
+        headindex[2] = l2-l1
+        f.seek(4)
+        f.write(struct.pack(type, *headindex))
+        f.seek(l2)
         i=0 
         j=1
         for part in range(nparts):
+            blocks[i] = f.tell()
             chunk = data[col][chunksize*i:chunksize*j]
-            globalorder(f,global_dict, valsdict, chunk, ordering)
+            globalorder(f,global_dict,chunk)
             i+=1
             j+=1
-            
-            
-    l1 = f.tell()
-    f.write(msgpack.dumps(sorted(gdict.keys(), key=gdict.get)))
-    l2 = f.tell()
-    headindex[2] = l2-l1
-    f.seek(4)
-    f.write(struct.pack(type, *headindex))
-    f.seek(l2)
-    i = 0
-    for bl in blocksdump:
-        blocks[i] = f.tell()
-        f.write(bl)
-        i+=1
     f.seek(blocksind)
-    f.write(struct.pack('L'*len(blocks),*blocks))   
+    f.write(struct.pack('L'*len(blocks),*blocks))
 
 
 
@@ -261,6 +423,7 @@ def write_indirect(data,filen, ordering, row_group_offsets):
             j+=1
     f.seek(blocksind)
     f.write(struct.pack('L'*len(blocks),*blocks))
+
 
 
 import pyarrow as pa

@@ -619,8 +619,8 @@ def encode_plain(vals, format, global_dict, sizediff, diffvals, distvals, compre
     if distvals[0] == 1:
         return encode_plain_parquet(vals, se)
     sdictvals = sorted(vals.unique()) #perhaps could make it faster
-#    for i in range(len(sdictvals)):
-#        sdictvals[i] = sdictvals[i].encode('utf_8')
+    for i in range(len(sdictvals)):
+        sdictvals[i] = sdictvals[i].encode('utf_8')
     if distvals[0] == -1 and len(vals)>0 and len(sdictvals)*1.0/len(vals)>0.7 :
        distvals[0] = 1
        return encode_plain_parquet(vals, se)

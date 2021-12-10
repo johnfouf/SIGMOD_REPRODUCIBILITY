@@ -659,7 +659,7 @@ int read_indirect_filt(int argc, char * argv[] ){
 
 	int join1 = atoi(argv[2]);
 	int* col = new int[fileheader1.numofvals];
-	char buffer1[fileheader1.glob_size];
+	char* buffer1 = new char[fileheader1.glob_size];
 	result = fread(buffer1,fileheader1.glob_size, 1, f1);
     msgpack::unpacked result1;
     unpack(result1, buffer1,fileheader1.glob_size);
@@ -688,23 +688,26 @@ int read_indirect_filt(int argc, char * argv[] ){
         int next = sizeof(struct Dindirect) + header1.minmaxsize + header1.indicessize + header1.mapsize;
         char minmaxbuf[header1.minmaxsize];
    		fseek(f1,initstep1+sizeof(struct Dindirect), SEEK_SET);
-    		 
     	result =  fread(minmaxbuf,header1.minmaxsize,1,f1);
     	msgpack::unpacked minmax;
     	unpack(minmax, minmaxbuf, header1.minmaxsize);
     	vector<string> minmax1;
     	minmax.get().convert(minmax1);
-        int mymap [header1.mapcount];
+    	
+        vector <int> mymap;
+   		bool found_offset = 0;  	
         if (header1.mapbytes==1){
                 unsigned short int map [header1.mapcount];
                 if (header1.mapsize > 0){
                     fseek(f1, initstep1+sizeof(struct Dindirect)+header1.minmaxsize,SEEK_SET);
                     result = fread(map,  header1.mapsize, 1, f1);
                     int c = 0;
-                    for ( unsigned short int& i: map)
-                        mymap[c++] = i;
+                    for ( unsigned short int i: map)
+                        mymap.push_back(i);
      			    //memcpy(map, &fptr1[initstep1+sizeof(struct Dindirect)+header1.minmaxsize], header1.mapsize);
      			   }
+     			   
+     			
      			if (header1.indicessize == 4){
                 int offf;
                 result = fread(&offf,  header1.indicessize, 1, f1);
@@ -732,6 +735,7 @@ int read_indirect_filt(int argc, char * argv[] ){
             
             }
         else{
+        
         if (header1.bytes==1){ // two byte offsets /*read offsets of file 1*/
      			unsigned short offsets1 [header1.numofvals];
      			fseek(f1, initstep1+sizeof(struct Dindirect)+header1.minmaxsize+ header1.mapsize,SEEK_SET);
@@ -822,12 +826,8 @@ int read_indirect_filt(int argc, char * argv[] ){
      			    fseek(f1, initstep1+sizeof(struct Dindirect)+header1.minmaxsize,SEEK_SET);
                     result = fread(map,  header1.mapsize, 1, f1);
                     int c = 0;
-                    for ( unsigned int& i: map)
-                        mymap[c++] = i;
-                    /*int c = 0;
-                    for (unsigned int &i: maplist)
-                        map[c++] = i;*/
-     			    //memcpy(map, &fptr1[initstep1+sizeof(struct Dindirect)+header1.minmaxsize], header1.mapsize);
+                    for ( unsigned int i: map)
+                        mymap.push_back(i);
      			   }
      			if (header1.indicessize == 4){
                 int offf;
@@ -857,15 +857,13 @@ int read_indirect_filt(int argc, char * argv[] ){
         else{
         if (header1.bytes==1){ // two byte offsets /*read offsets of file 1*/
      			unsigned short offsets1 [header1.numofvals];
-     			fseek(f1, initstep1+sizeof(struct Dindirect)+header1.minmaxsize+ header1.mapsize,SEEK_SET);
+     			fseek(f1, initstep1+sizeof(struct Dindirect)+header1.minmaxsize + header1.mapsize,SEEK_SET);
                 result = fread(offsets1,  header1.indicessize, 1, f1);
-     			//memcpy(offsets1, &fptr1[initstep1+sizeof(struct Dindirect)+header1.minmaxsize+ header1.mapsize], header1.indicessize);
-				if (header1.mapsize>0) {
+     			if (header1.mapsize>0) {
 				  for (int i=0; i < header1.numofvals; i++){
      		    	if (mymap[offsets1[i]] == offset){
      		    	    col[fcount] = count;
      		    	    fcount++;
-     		    	    
      		    	 }
      		    	count++;
      		      }
@@ -944,8 +942,8 @@ int read_indirect_filt(int argc, char * argv[] ){
      			    fseek(f1, initstep1+sizeof(struct Dindirect)+header1.minmaxsize,SEEK_SET);
                     result = fread(map,  header1.mapsize, 1, f1);
                     int c = 0;
-                    for ( unsigned char& i: map)
-                        mymap[c++] = i;
+                    for ( unsigned char i: map)
+                        mymap.push_back(i);
      			    //memcpy(map, &fptr1[initstep1+sizeof(struct Dindirect)+header1.minmaxsize], header1.mapsize);
      			   }
      			if (header1.indicessize == 4){
@@ -1056,20 +1054,14 @@ int read_indirect_filt(int argc, char * argv[] ){
      			initstep1 += next ;
      		}
      	}
-     			}
+     }
 
-        /* end of read mapping */
-        
-        
-        
-         
-        
-
-        totalcount1 += header1.numofvals;
+     /* end of read mapping */
+    totalcount1 += header1.numofvals;
     
     }
     
-    
+    delete buffer1;
     cout <<  "result count: " << fcount << endl;
     fclose(f1);
     return 1;
@@ -2029,9 +2021,8 @@ int random_access_diff(int argc, char * argv[] ){
             initstep2 += current2 + sizeof(int)*(fileheader1.numofcols+1);
             fseek(f1,initstep2, SEEK_SET);
             result =  fread(&header2, sizeof(struct D),1,f1);
-            
             vector<string> values1;
-            fseek(f1,initstep2+sizeof(struct D)+header2.minmaxsize+ header2.previndices*2,SEEK_SET);
+            fseek(f1,initstep2+sizeof(struct D)+header2.minmaxsize+header2.minmaxdiffsize+ header2.previndices*2,SEEK_SET);
             if (SNAPPY){
    			             char buffer1[header2.dictsize];
     		             result =  fread(buffer1,header2.dictsize,1,f1);
@@ -2043,7 +2034,6 @@ int random_access_diff(int argc, char * argv[] ){
     		}
             else{
                 char buffer1[header2.dictsize];
-            
                 result =  fread(buffer1,header2.dictsize,1,f1);
                 msgpack::unpacked result1;
                 unpack(result1, buffer1, header2.dictsize);
@@ -2053,7 +2043,7 @@ int random_access_diff(int argc, char * argv[] ){
         }
         else {
             
-            fseek(f1,initstep1+sizeof(struct D)+header1.minmaxsize+ header1.previndices*2,SEEK_SET);
+            fseek(f1,initstep1+sizeof(struct D)+header1.minmaxsize+header1.minmaxdiffsize+ header1.previndices*2,SEEK_SET);
             vector<string> values1;
             if (SNAPPY){
    			             char buffer1[header1.dictsize];
@@ -2418,7 +2408,7 @@ int read_diff_filt(int argc, char * argv[] ){
    			    
                 int offf;
                  gettimeofday(&begin, NULL);
-   
+          
                 fseek(f1,initstep1+sizeof(struct D)+header1.previndices*2+header1.dictsize + header1.minmaxsize + header1.minmaxdiffsize,SEEK_SET);
     			result =  fread(&offf,header1.indicessize,1,f1);
     			 gettimeofday(&end, NULL);
@@ -2532,7 +2522,7 @@ int read_diff_filt(int argc, char * argv[] ){
      			for (int i=0; i < header1.numofvals; i++){
      		    
      		    if (offsets1[i] == offset){
-     		        //col[fcount].rowid = count;
+     		        //col[fcount].Aacccerowid = count;
      		        //col[fcount].val = value;
      		        col[fcount] = count;
      		        fcount++;

@@ -1,4 +1,5 @@
 #include "arcade.h"
+#include <math.h>
 
 using namespace Arcade;
 
@@ -17,6 +18,15 @@ int extractattributes(std::string s, int *&columns) {
 
 
 int compress(ArcadeWriter &arcadewriter) {
+    std::map<std::string, string> mapOfMarks = {
+       {"OF"," using OFFSET to decide when to store a local dictionary"},
+       {"DF"," using only DIFFERENTIAL dictionaries"},
+       {"CF"," using COST FUNCTION to decide when to store a local dictionary"},
+       {"LD"," using only LOCAL dictionaries"},
+       {"CT"," using CURRENT TOTAL size to decide when to store a local dictionary"},
+       {"CD"," using CUMULATIVE DICTIONARY size to decide when to store a local dictionary"},
+   };
+
     char *filename = new char[100];
     char *outfile = new char[100];
     int *retcolumns = new int[1000];
@@ -29,11 +39,20 @@ int compress(ArcadeWriter &arcadewriter) {
     double duration = 0.0;
     std::clock_t start;
     cin >> filename >> outfile >> init >> row_count >> retcols >> costfunction >> enabledict;
+//    cout << "Compress column "<<retcols<<" from file: " << filename << mapOfMarks[costfunction] << " and produces file : " << outfile <<endl;
     retcolslen = extractattributes(retcols, retcolumns);
     start = std::clock();
+    cout << "-----------------------------------------------" << endl;
     arcadewriter.compress(filename, outfile, init, row_count, retcolumns, retcolslen, costfunction, enabledict);
     duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
+    FILE *fp = fopen(outfile, "r");
+    fseek(fp, 0L, SEEK_END);
+    // calculating the size of the file
+    long int res = ftell(fp);
+    cout << "Compress column "<<retcols<<" from file: " << filename << mapOfMarks[costfunction] << " and produces file : " << outfile << " with size: "<< round(res/(1024.0*1024.0)) << " MBs " << endl;
     cout << "Compressed " << row_count << " rows in " << duration << " seconds (total time including csv parsing)" << endl;
+
+    cout << "-----------------------------------------------" << endl << endl << endl;
     delete[] filename;
     delete[] outfile;
     delete[] retcolumns;
