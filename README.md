@@ -74,7 +74,7 @@ D2)
 	
 
 - For experiment section 4.4 (figure 8)
-    for C implementation run:
+    for C++ implementation run:
     ```
         arcadecpp/runner < experiment4.4_C_compress.queries
          ./experiment4.4_read_C.sh  (run as root as it frees pagecache, dentries and inodes per command)
