@@ -16,10 +16,10 @@ C reprod_datasets/yelp/friend.csv friend.cddiff 0 75531114 0 CD DISABLE_THRESHOL
 C reprod_datasets/yelp/friend.csv friend.ctdiff 0 75531114 0 CT DISABLE_THRESHOLD
 C reprod_datasets/yelp/friend.csv friend.lddiff 0 75531114 0 LD DISABLE_THRESHOLD
 C reprod_datasets/yelp/friend.csv friend.cfdiff 0 75531114 0 CF DISABLE_THRESHOLD
-C reprod_datasets/zipf/affszipf13random.csv zipf.ofdiff 0 119964007 0 OF DISABLE_THRESHOLD
-C reprod_datasets/zipf/affszipf13random.csv zipf.ddiff 0 119964007 0 DF DISABLE_THRESHOLD
-C reprod_datasets/zipf/affszipf13random.csv zipf.cddiff 0 119964007 0 CD DISABLE_THRESHOLD
-C reprod_datasets/zipf/affszipf13random.csv zipf.ctdiff 0 119964007 0 CT DISABLE_THRESHOLD
-C reprod_datasets/zipf/affszipf13random.csv zipf.lddiff 0 119964007 0 LD DISABLE_THRESHOLD
-C reprod_datasets/zipf/affszipf13random.csv zipf.cfdiff 0 119964007 0 CF DISABLE_THRESHOLD
+C reprod_datasets/mag_synthetic/affszipf13random.csv zipf.ofdiff 0 119964007 0 OF DISABLE_THRESHOLD
+C reprod_datasets/mag_synthetic/affszipf13random.csv zipf.ddiff 0 119964007 0 DF DISABLE_THRESHOLD
+C reprod_datasets/mag_synthetic/affszipf13random.csv zipf.cddiff 0 119964007 0 CD DISABLE_THRESHOLD
+C reprod_datasets/mag_synthetic/affszipf13random.csv zipf.ctdiff 0 119964007 0 CT DISABLE_THRESHOLD
+C reprod_datasets/mag_synthetic/affszipf13random.csv zipf.lddiff 0 119964007 0 LD DISABLE_THRESHOLD
+C reprod_datasets/mag_synthetic/affszipf13random.csv zipf.cfdiff 0 119964007 0 CF DISABLE_THRESHOLD
 Q
