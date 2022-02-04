@@ -36,7 +36,9 @@ pip install python-snappy
 - compile CPP compression runner:
 
 cd arcade
+
 make runner
+
 cd ../
 
 D1) Scripts and how-tos to generate all necessary data or locate datasets
