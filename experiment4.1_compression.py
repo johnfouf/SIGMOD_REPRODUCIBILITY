@@ -2,7 +2,7 @@ from pyimplementation.pyarcade import write
 import pyimplementation.global_encoding as global_encoding
 import pandas as pd
 
-df = pd.read_csv("reprod_datasets/zipf/affszipf13random.csv") # edit with csv input file path
+df = pd.read_csv("reprod_datasets/mag_synthetic/affszipf13random.csv") # edit with csv input file path
 
 import timeit
 print('Local random zipf 1.3, time:',timeit.timeit('write("zipf13rand.localdiff", df, row_group_offsets=65535, format="LOCAL")', globals=globals(), number=1))
@@ -17,7 +17,7 @@ print('Global sorted zipf 1.3, time:',timeit.timeit('global_encoding.write_globa
 print('Adaptive sorted zipf 1.3, time:',timeit.timeit('write("zipf13sorted.diff", df, row_group_offsets=65535, format="ADAPTIVE")', globals=globals(), number=1))
 print('Indirect sorted zipf 1.3, time:',timeit.timeit('global_encoding.write_indirect(df,"zipf13sorted.unindirect",0,65535)', globals=globals(), number=1))
 
-df = pd.read_csv("reprod_datasets/zipf/affszipf07random.csv") # edit with csv input file path
+df = pd.read_csv("reprod_datasets/mag_synthetic/affszipf07random.csv") # edit with csv input file path
 print('Local random zipf 0.7, time:',timeit.timeit('write("zipf07rand.localdiff", df, row_group_offsets=65535, format="LOCAL")', globals=globals(), number=1))
 print('Global random zipf 0.7, time:',timeit.timeit('global_encoding.write_global(df,"zipf07rand.unorderedglob",0,65535)', globals=globals(), number=1))
 print('Adaptive random zipf 0.7, time:',timeit.timeit('write("zipf07rand.diff", df, row_group_offsets=65535, format="ADAPTIVE")', globals=globals(), number=1))
@@ -32,7 +32,7 @@ print('Indirect sorted zipf 0.7, time:',timeit.timeit('global_encoding.write_ind
 
 
 
-df = pd.read_csv("reprod_datasets/zipf/affszipf0random.csv") # edit with csv input file path
+df = pd.read_csv("reprod_datasets/mag_synthetic/affszipf0random.csv") # edit with csv input file path
 print('Local random zipf 0, time:',timeit.timeit('write("zipf0rand.localdiff", df, row_group_offsets=65535, format="LOCAL")', globals=globals(), number=1))
 print('Global random zipf 0, time:',timeit.timeit('global_encoding.write_global(df,"zipf0rand.unorderedglob",0,65535)', globals=globals(), number=1))
 print('Adaptive random zipf 0, time:',timeit.timeit('write("zipf0rand.diff", df, row_group_offsets=65535, format="ADAPTIVE")', globals=globals(), number=1))
