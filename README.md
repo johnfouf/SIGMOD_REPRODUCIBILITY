@@ -110,7 +110,7 @@ E) Figures Creation
 	TBD
 	
 - For experiment section 4.2 (figures 7)
-    Rerun `
+    Run `
     
     ``` arcadecpp/runner < experiment4.2_compress.queries > experiment4.2_compress.txt```
     
