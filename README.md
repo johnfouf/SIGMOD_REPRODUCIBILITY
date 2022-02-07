@@ -104,25 +104,28 @@ D2)
 E) Figures Creation 
 
 - Python's matplotlib should be installed
-- 
-   ```python3 -m pip install matplotlib```
+
+ 
+ ```python3 -m pip install matplotlib```
    
 - For experiment section 4.1 (figures 5 and 6)
-       ``` python3 experiment4.1_compression.py | python3 plots_experiment4.1_compression.py ```
-       This will create a new folder in the current directory (experiment4.1_compression_figs) including the figures for section 4.1 (compression times and sizes)
+ 
+ 	``` python3 experiment4.1_compression.py | python3 plots_experiment4.1_compression.py ```
+ 
+ 	This will create a new folder in the current directory (experiment4.1_compression_figs) including the figures for section 4.1 (compression times and sizes)
 	
-TBD
+  	TBD
 	
 - For experiment section 4.2 (figures 7)
-    Run `
+    	Run 
        
-    ``` arcadecpp/runner < experiment4.2_compress.queries > experiment4.2_compress.txt```
+    	``` arcadecpp/runner < experiment4.2_compress.queries > experiment4.2_compress.txt ```
     
-    to redirect the result into the txt file and then run
+    	to redirect the result into the txt file and then run
     
-    ``` python3 plots_experiment4.2.py```
+    	``` python3 plots_experiment4.2.py```
     
-    This will create a new folder in the current directory (experiment4.2_fig7) including the figures for section 4.2
+    	This will create a new folder in the current directory (experiment4.2_fig7) including the figures for section 4.2
     
     
     
