@@ -106,7 +106,7 @@ E) Figures Creation
 - Python's matplotlib should be installed
 
  
- ```python3 -m pip install matplotlib```
+ 	```python3 -m pip install matplotlib```
    
 - For experiment section 4.1 (figures 5 and 6)
  
@@ -114,7 +114,7 @@ E) Figures Creation
  
  	This will create a new folder in the current directory (experiment4.1_compression_figs) including the figures for section 4.1 (compression times and sizes)
 	
-  	TBD
+  	scripts for other plots of section 4.1 (TBD)
 	
 - For experiment section 4.2 (figures 7)
     	Run 
