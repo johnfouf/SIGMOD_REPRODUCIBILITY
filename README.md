@@ -99,3 +99,22 @@ D2)
     In both cases:
         The first command compresses the citation file with 2 ways and prints the times
         The second command runs a filtered scan in both files and prints the times and the result count
+
+
+E) Figures Creation 
+
+- Python's matplotlib should be installe
+   ```python3 -m pip install matplotlib```
+- For experiment section 4.1 (figures 5 and 6)
+       
+	TBD
+	
+- For experiment section 4.2 (figures 7)
+    Rerun ``` arcadecpp/runner < experiment4.2_compress.queries > experiment4.2_compress.txt```
+    and then ``` python3 plots_experiment4.2.py```
+    This will create a new folder in the current directory (experiment4.2_fig7) including the figures for section 4.2
+    
+    
+    
+    
+    
