@@ -112,7 +112,7 @@ E) Figures Creation
 - For experiment section 4.2 (figures 7)
     Rerun `
     
-    `` arcadecpp/runner < experiment4.2_compress.queries > experiment4.2_compress.txt```
+    ``` arcadecpp/runner < experiment4.2_compress.queries > experiment4.2_compress.txt```
     
     to redirect the result into the txt file and then run
     
