@@ -137,4 +137,20 @@ E) Figures Creation
     
     
     
-- For other experiments (TBD)
+- For experiment section 4.4 (figure 8)
+        Run 
+       
+    	
+	```arcadecpp/runner < experiment4.4_C_compress.queries > experiment4.4_C_compress.txt
+         ./experiment4.4_read_C.sh > results4.4read_C.txt
+        python3 experiment4.4_compress_python.py > experiment4.4_Python_compress.txt
+        ./experiment4.4_read_PYTHON.sh > experiment4.4_Python_read.txt
+	```
+	
+        
+
+    	to redirect the results into txt files and then run
+    
+    	``` python3 plots_experiment4.4.py```
+    
+    	This will create a new folder in the current directory (experiment4.4_figs) including the figure for section 4.4
