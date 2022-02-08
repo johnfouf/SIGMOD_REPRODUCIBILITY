@@ -162,3 +162,5 @@ E) Figures Creation
     	``` python3 plots_experiment4.4.py```
     
     	This will create a new folder in the current directory (experiment4.4_figs) including the figure for section 4.4
+	
+See also IMPORTANT_NOTES for instructions on running the code on different datasets and validate.
