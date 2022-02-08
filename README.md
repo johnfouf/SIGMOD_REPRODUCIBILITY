@@ -137,12 +137,12 @@ E) Figures Creation
 - For experiment section 4.3 (tables 2 and 3)
        Run
        
-       ```
-	python3 experiment4.3_compression.py
-	./experiment4.3_read.sh > results4.3read.txt
-	python3 table_experiment4.3.py
-	
-	```  
+        ```
+		python3 experiment4.3_compression.py
+		./experiment4.3_read.sh > results4.3read.txt
+		python3 table_experiment4.3.py
+	```
+	  
 	The last script will print the results to standard output in a comma separated format, so you could also redirect output to a csv file.
     
 - For experiment section 4.4 (figure 8)
