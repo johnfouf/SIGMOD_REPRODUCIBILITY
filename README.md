@@ -114,7 +114,13 @@ E) Figures Creation
  
  	This will create a new folder in the current directory (experiment4.1_compression_figs) including the figures for section 4.1 (compression times and sizes)
 	
-  	scripts for other plots of section 4.1 (TBD)
+	
+	```
+	./experiment4.1_read.sh > results4.1read.txt 2>&1
+	python3 plots_experiment4.1_read.py
+	``` 
+	
+	This will create a new folder in the current directory (experiment4.1_read_figs) including figures for section 4.1 (filters, full scans, random access)
 	
 - For experiment section 4.2 (figures 7)
     	Run 
@@ -131,3 +137,4 @@ E) Figures Creation
     
     
     
+- For other experiments (TBD)
