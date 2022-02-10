@@ -151,7 +151,8 @@ E) Figures Creation
         Run 
        
     	
-	```arcadecpp/runner < experiment4.4_C_compress.queries > experiment4.4_C_compress.txt
+	```
+	arcadecpp/runner < experiment4.4_C_compress.queries > experiment4.4_C_compress.txt
          ./experiment4.4_read_C.sh > results4.4read_C.txt
         python3 experiment4.4_compress_python.py > experiment4.4_Python_compress.txt
         ./experiment4.4_read_PYTHON.sh > experiment4.4_Python_read.txt
