@@ -110,8 +110,9 @@ E) Figures Creation
    
 - For experiment section 4.1 (figures 5 and 6)
  
- 	``` python3 experiment4.1_compression.py > > results4.1compression.txt 
-            python3 plots_experiment4.1_compression.py ```
+ 	``` python3 experiment4.1_compression.py > results4.1compression.txt 
+            python3 plots_experiment4.1_compression.py 
+	```
  
  	This will create a new folder in the current directory (experiment4.1_compression_figs) including the figures for section 4.1 (compression times and sizes)
 	
