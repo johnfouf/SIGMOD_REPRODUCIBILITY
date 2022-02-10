@@ -110,7 +110,8 @@ E) Figures Creation
    
 - For experiment section 4.1 (figures 5 and 6)
  
- 	``` python3 experiment4.1_compression.py > results4.1compression.txt 
+ 	``` 
+	    python3 experiment4.1_compression.py > results4.1compression.txt 
             python3 plots_experiment4.1_compression.py 
 	```
  
