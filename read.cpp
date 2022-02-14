@@ -1499,7 +1499,7 @@ int read_glob_filt(int argc, char * argv[] ){
     result =  fread(buffer1,fileheader1.glob_size,1,f1);
    
     gettimeofday(&end, NULL);
-    ioduration += end.tv_usec-begin.tv_usec;
+    ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);;
      msgpack::unpacked result1;
     unpack(result1, buffer1,fileheader1.glob_size);
     vector<string> values1;
@@ -1525,13 +1525,13 @@ int read_glob_filt(int argc, char * argv[] ){
          gettimeofday(&begin, NULL);
         result =  fread(&header1, sizeof(struct Dglob),1,f1);
          gettimeofday(&end, NULL);
-    ioduration += end.tv_usec-begin.tv_usec;
+         ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);
         totalcount1 += header1.numofvals;
         char minmaxbuf[header1.minmaxsize];
          gettimeofday(&begin, NULL);
         result =  fread(minmaxbuf,header1.minmaxsize,1,f1);
          gettimeofday(&end, NULL);
-    ioduration += end.tv_usec-begin.tv_usec;
+    ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);;
         
     	msgpack::unpacked minmax;
     	unpack(minmax, minmaxbuf, header1.minmaxsize);
@@ -1556,7 +1556,7 @@ int read_glob_filt(int argc, char * argv[] ){
                 fseek(f1,initstep1+sizeof(struct Dglob)+ header1.minmaxsize,SEEK_SET);
     			result =  fread(&offf,header1.indicessize,1,f1);
     			 gettimeofday(&end, NULL);
-    ioduration += end.tv_usec-begin.tv_usec;
+    ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);
                 if (offf == offset)
                 for (int i=0; i < header1.numofvals; i++){
      		    	col[fcount] = count;
@@ -1575,7 +1575,7 @@ int read_glob_filt(int argc, char * argv[] ){
      			fseek(f1,initstep1+sizeof(struct Dglob)+ header1.minmaxsize,SEEK_SET);
     			result =  fread(offsets1,header1.indicessize,1,f1);
     			 gettimeofday(&end, NULL);
-    ioduration += end.tv_usec-begin.tv_usec;
+    ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);
 				for (int i=0; i < header1.numofvals; i++){
      		    
      		    if (offsets1[i] == offset){
@@ -1594,7 +1594,7 @@ int read_glob_filt(int argc, char * argv[] ){
      			fseek(f1,initstep1+sizeof(struct Dglob)+ header1.minmaxsize,SEEK_SET);
     			result =  fread(offsets1,header1.indicessize,1,f1);
     			 gettimeofday(&end, NULL);
-    ioduration += end.tv_usec-begin.tv_usec;
+    ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);
 				for (int i=0; i < header1.numofvals; i++){
      		    
      		    if (offsets1[i] == offset){
@@ -1613,7 +1613,7 @@ int read_glob_filt(int argc, char * argv[] ){
      			fseek(f1,initstep1+sizeof(struct Dglob)+ header1.minmaxsize,SEEK_SET);
     			result =  fread(offsets1,header1.indicessize,1,f1);
     			 gettimeofday(&end, NULL);
-    ioduration += end.tv_usec-begin.tv_usec;
+    ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);
      			for (int i=0; i < header1.numofvals; i++){
      		    
      		    if (offsets1[i] == offset){
@@ -1636,7 +1636,7 @@ int read_glob_filt(int argc, char * argv[] ){
      perror("gettimeofday");
      return -1;
    }
-   tduration = endf.tv_usec - beginf.tv_usec;
+   tduration = 1000000 * (endf.tv_sec - beginf.tv_sec) + (endf.tv_usec - beginf.tv_usec);
    cout <<  "result count: " << fcount << " " << " blocks omitted: " << ommits << " io time: "<< ioduration << " total_time: "<< tduration <<endl; 
    return 1;
 }
@@ -2201,7 +2201,7 @@ int read_diff_filt(int argc, char * argv[] ){
     processingduration += (std::clock() - start) / (double) CLOCKS_PER_SEC;
     result =  fread(data,(fileheader1.numofblocks+1)*8,1,f1);
     gettimeofday(&end, NULL);
-    ioduration += end.tv_usec-begin.tv_usec;
+    ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);;
 	unsigned long initstep1 = 4 + sizeof(struct fileH)+(fileheader1.numofblocks+1)*8;
 	struct D header1;
 	
@@ -2223,7 +2223,7 @@ int read_diff_filt(int argc, char * argv[] ){
    		    result =  fread(&header1, sizeof(struct D),1,f1);
    		    totalcount1 += header1.numofvals;
    		    gettimeofday(&end, NULL);
-            ioduration += end.tv_usec-begin.tv_usec;
+            ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);
    		    if (header1.dictsize == 0){
    		        //    parquetvalues1.reserve(fileheader1.numofvals);
     		    char buffer1[header1.indicessize];
@@ -2264,7 +2264,7 @@ int read_diff_filt(int argc, char * argv[] ){
     		 result =  fread(minmaxbuf,header1.minmaxsize,1,f1);
     		 fseek(f1,initstep1+sizeof(struct D)+header1.previndices*2 + header1.minmaxsize + header1.minmaxdiffsize, SEEK_SET);
     		 gettimeofday(&end, NULL);
-             ioduration += end.tv_usec-begin.tv_usec;
+             ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);;
     		 msgpack::unpacked minmax;
     		 unpack(minmax, minmaxbuf, header1.minmaxsize);
     		 vector<string> minmax1;
@@ -2280,7 +2280,7 @@ int read_diff_filt(int argc, char * argv[] ){
     		        fseek(f1,initstep1+sizeof(struct D)+header1.previndices*2 + header1.minmaxsize, SEEK_SET);
     		        result =  fread(minmaxdiffbuf,header1.minmaxdiffsize,1,f1);
     		        gettimeofday(&end, NULL);
-                    ioduration += end.tv_usec-begin.tv_usec;
+                    ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);;
     		        msgpack::unpacked minmaxdiff;
     		        unpack(minmaxdiff, minmaxdiffbuf, header1.minmaxdiffsize);
     		        vector<string> minmax1diff;
@@ -2313,7 +2313,7 @@ int read_diff_filt(int argc, char * argv[] ){
    			   
    			    result =  fread(buffer1,header1.dictsize,1,f1);
    			    gettimeofday(&end, NULL);
-    			ioduration += end.tv_usec-begin.tv_usec;
+    			ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);;
     		    msgpack::unpacked result1;
     		    unpack(result1,  buffer1, header1.dictsize);
     		    result1.get().convert(values1);
@@ -2349,7 +2349,7 @@ int read_diff_filt(int argc, char * argv[] ){
     			
    			    result =  fread(buffer1,header1.dictsize,1,f1);
    			    gettimeofday(&end, NULL);
-    			ioduration += end.tv_usec-begin.tv_usec;
+    			ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);;
     		    msgpack::unpacked result1;
     		    unpack(result1, buffer1, header1.dictsize);
     		    
@@ -2385,7 +2385,7 @@ int read_diff_filt(int argc, char * argv[] ){
    			 fseek(f1,initstep1+sizeof(struct D)+header1.previndices*2, SEEK_SET);
     		 result =  fread(minmaxbuf,header1.minmaxsize,1,f1);
     		  gettimeofday(&end, NULL);
-    ioduration += end.tv_usec-begin.tv_usec;
+    ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);;
     		 msgpack::unpacked minmax;
     		 
     		 unpack(minmax, minmaxbuf, header1.minmaxsize);
@@ -2412,7 +2412,7 @@ int read_diff_filt(int argc, char * argv[] ){
                 fseek(f1,initstep1+sizeof(struct D)+header1.previndices*2+header1.dictsize + header1.minmaxsize + header1.minmaxdiffsize,SEEK_SET);
     			result =  fread(&offf,header1.indicessize,1,f1);
     			 gettimeofday(&end, NULL);
-    ioduration += end.tv_usec-begin.tv_usec;
+    ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);;
     			start = std::clock();
                 if (offf == offset)
                 for (int i=0; i < header1.numofvals; i++){
@@ -2436,7 +2436,7 @@ int read_diff_filt(int argc, char * argv[] ){
    			        gettimeofday(&begin, NULL);
     			    result =  fread(buffer1,header1.indicessize,1,f1);
     			    gettimeofday(&end, NULL);
-    			    ioduration += end.tv_usec-begin.tv_usec;
+    			    ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);;
     		       string output;
     		       snappy::Uncompress(buffer1, header1.indicessize, &output);
     		       
@@ -2450,7 +2450,7 @@ int read_diff_filt(int argc, char * argv[] ){
     			
     			}
     			gettimeofday(&end, NULL);
-    			ioduration += end.tv_usec-begin.tv_usec;
+    			ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);;
     			start = std::clock();
 				for (int i=0; i < header1.numofvals; i++){
      		    
@@ -2483,7 +2483,7 @@ int read_diff_filt(int argc, char * argv[] ){
     		    
     		    }
     		    gettimeofday(&end, NULL);
-    			ioduration += end.tv_usec-begin.tv_usec;
+    			ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);;
     		    start = std::clock();
 				for (int i=0; i < header1.numofvals; i++){
      		    
@@ -2517,7 +2517,7 @@ int read_diff_filt(int argc, char * argv[] ){
     		    
     		    }
     		    gettimeofday(&end, NULL);
-    			ioduration += end.tv_usec-begin.tv_usec;
+    			ioduration += 1000000 * (end.tv_sec - begin.tv_sec) + (end.tv_usec - begin.tv_usec);;
     		    start = std::clock();
      			for (int i=0; i < header1.numofvals; i++){
      		    
@@ -2540,7 +2540,7 @@ int read_diff_filt(int argc, char * argv[] ){
      perror("gettimeofday");
      return -1;
    }
-	tduration = endf.tv_usec - beginf.tv_usec;
+	tduration =   1000000 * (endf.tv_sec - beginf.tv_sec) + (endf.tv_usec - beginf.tv_usec);
    cout <<  "result count: " << fcount << " " << " blocks omitted: " << ommits << " offset scan omitted: "<< ommits2 << " io time: "<< ioduration << " total_time: "<< tduration  <<endl;
      
     return 0;
