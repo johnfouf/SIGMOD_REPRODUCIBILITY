@@ -13,7 +13,6 @@ except:
     pass
 import re
 
-f = open('results4.1compression.txt')
 
 mylines = []
 

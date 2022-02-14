@@ -110,7 +110,9 @@ E) Figures Creation
    
 - For experiment section 4.1 (figures 5 and 6)
  
- 	``` python3 experiment4.1_compression.py | python3 plots_experiment4.1_compression.py ```
+ 	``` 
+	    python3 experiment4.1_compression.py |  python3 plots_experiment4.1_compression.py 
+	```
  
  	This will create a new folder in the current directory (experiment4.1_compression_figs) including the figures for section 4.1 (compression times and sizes)
 	
@@ -134,15 +136,24 @@ E) Figures Creation
     	This will create a new folder in the current directory (experiment4.2_fig7) including the figures for section 4.2
     
     
-    
-    
+- For experiment section 4.3 (tables 2 and 3)
+       Run
+       
+        ```
+		python3 experiment4.3_compression.py
+		./experiment4.3_read.sh > results4.3read.txt
+		python3 table_experiment4.3.py
+	```
+	  
+	The last script will print the results to standard output in a comma separated format, so you could also redirect output to a csv file.
     
 - For experiment section 4.4 (figure 8)
         Run 
        
     	
-	```arcadecpp/runner < experiment4.4_C_compress.queries > experiment4.4_C_compress.txt
-         ./experiment4.4_read_C.sh > results4.4read_C.txt
+	```
+	arcadecpp/runner < experiment4.4_C_compress.queries > experiment4.4_C_compress.txt
+         ./experiment4.4_read_C.sh > results4.4read_C.txt 2>&1
         python3 experiment4.4_compress_python.py > experiment4.4_Python_compress.txt
         ./experiment4.4_read_PYTHON.sh > experiment4.4_Python_read.txt
 	```
@@ -154,3 +165,5 @@ E) Figures Creation
     	``` python3 plots_experiment4.4.py```
     
     	This will create a new folder in the current directory (experiment4.4_figs) including the figure for section 4.4
+	
+See also IMPORTANT_NOTES for instructions on running the code on different datasets and validate.
