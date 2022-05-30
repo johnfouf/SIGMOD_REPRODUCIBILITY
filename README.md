@@ -50,7 +50,7 @@ tar -xvf reproducibility.tar
 gunzip -r reprod_datasets
 ```
 
-D2) 
+D2) Execution of experiments (prints results and times at standard output)
 
 - For experiment section 4.1 (figures 5 and 6)
        
