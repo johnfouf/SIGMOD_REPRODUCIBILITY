@@ -13,7 +13,8 @@ C4) Secondary Storage: Samsung SSD 850 EVO 250GB, SATA Version is:  SATA 3.1, 6.
 
 D) Experimentation Info
 Clone repository and run
-```cd SIGMOD_REPRODUCABILITY```
+
+```cd SIGMOD_REPRODUCIBILITY```
 
 D1) Compilations:
 dependencies install for C:
